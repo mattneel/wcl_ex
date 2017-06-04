@@ -14,7 +14,7 @@ defmodule WclEx do
   end
   require Logger
 
-  def loans(pid \\ "c11096815", surname \\ "crane") do
+  def loans(pid, surname) do
     use Hound.Helpers
     Hound.start_session
 

@@ -1,7 +1,20 @@
 defmodule WclEx do
+
+  defmodule Loan do
+    defstruct [author: "", 
+      title: "", 
+      due: "", 
+      pub: "", 
+      call: "",
+      status: "",
+      number: "",
+      on: "",
+      at: "",
+      isbn: ""]
+  end
   require Logger
 
-  def loans(pid, surname) do
+  def loans(pid \\ "c11096815", surname \\ "crane") do
     use Hound.Helpers
     Hound.start_session
 
@@ -42,14 +55,46 @@ defmodule WclEx do
       |> Enum.drop(1) 
       |> Enum.take_every(2) 
       |> Enum.map(&visible_text/1)
+    
+    calls = find_all_elements(:class, "pip_callNumber")
+      |> Enum.drop(1) 
+      |> Enum.take_every(2) 
+      |> Enum.map(&visible_text/1)
+
+    statuses = find_all_elements(:class, "pip_status")
+      |> Enum.filter(fn(x) -> css_property(x, "display") != "none" end) 
+      |> Enum.drop(2) 
+      |> Enum.take_every(2)
+      |> Enum.map(&visible_text/1) 
+      
+    numbers = find_all_elements(:class, "pip_barcode")
+      |> Enum.drop(1) 
+      |> Enum.take_every(2) 
+      |> Enum.map(&visible_text/1)
+    
+    ats = find_all_elements(:class, "pip_branchName")
+      |> Enum.drop(1) 
+      |> Enum.take_every(2) 
+      |> Enum.map(&visible_text/1)
+
+    ons = find_all_elements(:class, "pip_date1")
+      |> Enum.drop(1) 
+      |> Enum.take_every(2) 
+      |> Enum.map(&visible_text/1)
+
 
 
     Enum.with_index(authors)
     |> Enum.map(fn {a, i} ->
-        %{author: a,
+        %Loan{author: a,
           title: Enum.fetch!(titles, i),
           due: Enum.fetch!(dues, i),
           pub: Enum.fetch!(pubs, i),
+          call: Enum.fetch!(calls, i),
+          status: Enum.fetch!(statuses, i),
+          number: Enum.fetch!(numbers, i),
+          on: Enum.fetch!(ons, i),
+          at: Enum.fetch!(ats, i),
           isbn: Enum.fetch!(isbns, i)
         }
       end)
